@@ -1,0 +1,31 @@
+# 使用 Ubuntu 20.04 作為基礎映像
+FROM --platform=linux/amd64 ubuntu:20.04
+
+# 設定工作目錄
+WORKDIR /app
+
+# 避免安裝過程中的交互式提示
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 安裝必要的套件
+RUN apt-get update && apt-get install -y \
+    wine64 \
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安裝 Python 套件
+RUN pip3 install pyinstaller
+
+# 複製專案檔案
+COPY . .
+
+# 使用 PyInstaller 打包
+RUN wine64 pyinstaller \
+    --onefile \
+    --windowed \
+    --name BugMoeBackup \
+    backup_bugmoe.py
+
+# 設定輸出
+CMD ["cp", "/app/dist/BugMoeBackup.exe", "/output/"] 
